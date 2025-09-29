@@ -1,40 +1,24 @@
-import asyncio
-
 import flet as ft
 from flet.core.control_event import ControlEvent
 from flet.core.template_route import TemplateRoute
 from flet.core.theme import PageTransitionTheme
 
+from views.base import Router, View
+
 
 async def main(page: ft.Page):
     page.title = "Routes Example"
 
+    router = Router([
+        View(route="explore", label="Explore", icon=ft.Icons.EXPLORE),
+        View(route="search", label="Search", icon=ft.Icons.SEARCH),
+        View(route="recipies", label="Recipies", icon=ft.Icons.BOOKMARK_BORDER, icon_selected=ft.Icons.BOOKMARK),
+        View(route="profile", label="Profile", icon=ft.Icons.FACE),
+    ])
+
+
     def route_change(route):
         t_route = TemplateRoute(page.route)
-
-        def navigation_change(e: ControlEvent):
-            next_index = int(e.data)
-            next_route = list(nav_destinations.keys())[next_index]
-            page.go(f"/{next_route}")
-            page.update()
-
-        nav_destinations = {
-            "explore": ft.NavigationBarDestination(icon=ft.Icons.EXPLORE, label="Explore"),
-            "search": ft.NavigationBarDestination(icon=ft.Icons.SEARCH, label="Search"),
-            "recipies": ft.NavigationBarDestination(
-                    icon=ft.Icons.BOOKMARK_BORDER,
-                    selected_icon=ft.Icons.BOOKMARK,
-                    label="Recipies",
-                ),
-            "profile": ft.NavigationBarDestination(
-                    icon=ft.Icons.FACE,
-                    label="Profile",
-                ),
-        }
-        nav = ft.NavigationBar(
-            destinations=list(nav_destinations.values()),
-            on_change=navigation_change,
-        )
 
         page.views.clear()
         page.views.append(ft.View(
@@ -42,7 +26,7 @@ async def main(page: ft.Page):
             [
                 ft.ElevatedButton("Dashboard", on_click=lambda _: page.go("/dashboard")),
             ],
-            navigation_bar=nav
+            navigation_bar=router.navigation
         ))
         if page.route == "/dashboard":
             page.views.append(ft.View(
@@ -50,7 +34,7 @@ async def main(page: ft.Page):
                 [
                     ft.ElevatedButton("Go Home", on_click=lambda _: page.go("/")),
                 ],
-                navigation_bar=nav
+                navigation_bar=router.navigation
             ))
         if t_route.match("/recipe/:id"):
             page.views.append(ft.View(
@@ -58,7 +42,7 @@ async def main(page: ft.Page):
                 [
                     ft.ElevatedButton("Go Home", on_click=lambda _: page.go("/")),
                 ],
-                navigation_bar=nav
+                navigation_bar=router.navigation
             ))
         page.update()
 
